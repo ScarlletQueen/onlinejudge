@@ -6,14 +6,13 @@
 class city;
 void Init(city *cities, int n, int m);
 void print(city *cities, int n);
-int work(city *cities, int n, int m);
+int  work(city *cities, int n, int m);
 
 class city
 {
 public:
 	city(int id = -1):_id(id)
 	{
-		_neibours = (city**)malloc(DEGREE * sizeof(city*));
 		for(int i = 0; i < DEGREE; ++i)
 		{
 			_neibours[i] = NULL;
@@ -21,41 +20,24 @@ public:
 		}
 	}
 
-	~city(){ free(_neibours); }
+	~city(){}
 
 	void setId(int id){ _id = id; }
 	
 	// bugs in here!
 	void addNeibour(city *neibour)
 	{
-		printf("add neibour curId:%d, neibourId: %d\n", _id, neibour->_id);
+		// printf("add neibour curId:%d, neibourId: %d\n", _id, neibour->_id);
 		for(int i = 0; i < DEGREE; ++i)
 		{
-			if(_neibours[i] == neibour)
-			{
-				break;				
-			}
+			if(_neibours[i] != NULL && _neibours[i]->_id == neibour->_id )
+				return;
 
 			if(_neibours[i] == NULL)
 			{
 				_neibours[i] = neibour;
 				_isChecked[i] = false;
-
-				for(int j = 0; j < DEGREE; ++j)
-				{
-					if(_neibours[i] == neibour)
-						break;
-
-					if(neibour->_neibours[j] == NULL)
-					{
-						neibour->_neibours[j] = this;
-						neibour->_isChecked[j] = false;	
-		
-						break;
-					}
-				}
-
-				break;
+				return;
 			}
 		}
 	}
@@ -93,8 +75,8 @@ public:
 
 	void searchLongestRode(int begin, int *currentLength, int *longestRode)
 	{
-		printf("search: begin:%d, cur: %d, curLen:%d, longest:%d\n", 
-			begin, _id, *currentLength, *longestRode);
+		// printf("search: begin:%d, cur: %d, curLen:%d, longest:%d\n", 
+		// 	begin, _id, *currentLength, *longestRode);
 		for(int i = 0; i < DEGREE; ++i)
 		{
 			if(_neibours[i] != NULL && _isChecked[i] == false)
@@ -103,7 +85,7 @@ public:
 
 				setIsCheck(_neibours[i]->_id, true);
 
-				printNeibours();
+				// printNeibours();
 
 				_neibours[i]->searchLongestRode(_id, currentLength, longestRode);
 			}
@@ -121,7 +103,7 @@ public:
 
 private:
 	int _id;
-	city **_neibours;
+	city *_neibours[DEGREE];
 	bool _isChecked[DEGREE];
 };
 
@@ -132,8 +114,8 @@ int main()
 	{
 		city *cities = new city[n];
 		Init(cities, n, m);
-		print(cities, n);
-		printf("\n");
+		// print(cities, n);
+		// printf("\n");
 
 		int longestRode = work(cities, n, m);
 		printf("%d\n", longestRode);
@@ -153,6 +135,7 @@ void Init(city *cities, int n, int m)
 		int beg, end;
 		scanf("%d %d", &beg, &end);
 		cities[beg].addNeibour(&cities[end]);
+		cities[end].addNeibour(&cities[beg]);
 	}
 }
 
@@ -178,7 +161,7 @@ int work(city *cities, int n, int m)
 		if(longest > result)
 			result = longest;
 
-		printf("\n");
+		// printf("\n");
 	}
 
 	return result;
