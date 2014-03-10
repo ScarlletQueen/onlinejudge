@@ -3,18 +3,22 @@
 
 #define ABSENCE '*'
 #define OIL '@'
-#define PROCESSED 'X'
+#define CHECKED 'X'
 
-int oilDeposits(int m, int n);
-void init(int m, int n, char *matrix);
-void printMatrix(int m, int n, char *matrix);
+int oilDeposits(int M, int N);
+void init(int M, int N, char **matrix);
+void printMatrix(int M, int N, char **matrix);
+
+// method 1: recursively
+int oilDeposits_Recursive(char **matrix, int M, int N);
+void searchRecursively(char **matrix, int M, int N, int row, int col);
 
 int main()
 {
-	int m, n;
-	while( scanf("%d %d\n", &m, &n) != EOF && m != 0 && n != 0 )
+	int M, N;
+	while( scanf("%d %d\n", &M, &N) != EOF && M != 0 && N != 0 )
 	{
-		int pockets = oilDeposits(m, n);
+		int pockets = oilDeposits(M, N);
 
 		printf("%d\n", pockets);
 	}
@@ -22,40 +26,91 @@ int main()
 	return 0;
 }
 
-int oilDeposits(int m, int n)
+int oilDeposits(int M, int N)
 {
-	int pockets = 0;
-
-	char *matrix = (char *)malloc(m*n);
+	char **matrix = (char **)malloc(M * sizeof(char*));
+	for(int i = 0; i < M; ++i)
+		matrix[i] = (char *)malloc(N*sizeof(char));
 	
-	init(m, n, matrix);
-	
-	printMatrix(m, n, matrix);
+	init(M, N, matrix);
 
-	free(matrix);
+	// printMatrix(M, N, matrix);
+	
+	int pockets = oilDeposits_Recursive(matrix, M, N);	
+
+	// for(int i = 0; i < M; ++i)
+	// 	free(matrix[i]);
+	// free(matrix);
+
 	return pockets;
 }
 
-void init(int m, int n, char *matrix)
+void init(int M, int N, char **matrix)
 {
-	char *line = (char*)malloc(n+1);
-	for(int row = 0; row < m; ++row)
+	char *line = (char*)malloc(N+1);
+	for(int row = 0; row < M; ++row)
 	{
 		gets(line);
 
-		for(int col = 0; col < n; ++col)
-			matrix[row*n + col] = line[col];
+		for(int col = 0; col < N; ++col)
+			matrix[row][col] = line[col];
 	}
 	free(line);
 }
 
-void printMatrix(int m, int n, char *matrix)
+void printMatrix(int M, int N, char **matrix)
 {
-	for(int row = 0; row < m; ++row)
+	for(int row = 0; row < M; ++row)
 	{
-		for(int col = 0; col < n; ++col)
-			printf("%c ", matrix[row*n + col]);
+		for(int col = 0; col < N; ++col)
+			printf("%c ", matrix[row][col]);
 
 		printf("\n");
+	}
+}
+
+int oilDeposits_Recursive(char **matrix, int M, int N)
+{	
+	int pockets = 0;
+
+	for(int row = 0; row < M; ++row)
+	{
+		for(int col = 0; col < N; ++col)
+		{
+			if(matrix[row][col] == OIL) 
+			{
+				// printf("oilDeposits_Recursive new oil, m[%d][%d]\n", row, col);
+				++pockets;
+
+				searchRecursively(matrix, M, N, row, col);
+			}
+		}
+	}
+
+	return pockets;
+}
+
+void searchRecursively(char **matrix, int M, int N, int row, int col)
+{	
+	int rows[8] = {row-1, row-1, row-1, row, row, row+1, row+1, row+1 };
+	int cols[8] = {col-1, col, col+1, col-1, col+1, col-1, col, col+1};
+
+	for( int i = 0; i < 8; ++i )
+	{
+		if( rows[i] >= M || rows[i] < 0 || cols[i] >= N || cols[i] < 0 ) // invalid neibour
+			continue;
+
+		if(matrix[rows[i]][cols[i]] == CHECKED)
+			continue;
+
+		if(matrix[rows[i]][cols[i]] == ABSENCE)
+		{
+			matrix[rows[i]][cols[i]] = CHECKED;
+			continue;
+		}
+
+		// OIL																																																																																																																																																																																																																																																																																																																																																																						`																													
+		matrix[rows[i]][cols[i]] = CHECKED;
+		searchRecursively(matrix, M, N, rows[i], cols[i]);
 	}
 }
