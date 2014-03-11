@@ -7,6 +7,7 @@ class city;
 void Init(city *cities, int n, int m);
 void print(city *cities, int n);
 int  work(city *cities, int n, int m);
+int  workEx(city *cities, int n, int m);
 
 class city
 {
@@ -101,6 +102,27 @@ public:
 		}
 	}
 
+	int dfs()
+	{
+		int max = 0, cur = 0;
+
+		for(int i = 0; i < DEGREE; ++i)
+		{
+			if(_neibours[i] != NULL && _isChecked[i] == false)
+			{
+				setIsCheck(_neibours[i]->_id, true);
+
+				cur = _neibours[i]->dfs() + 1;
+
+				if(cur > max) max = cur;
+
+				setIsCheck(_neibours[i]->_id, false);
+			}
+		}
+
+		return max;
+	}
+
 private:
 	int _id;
 	city *_neibours[DEGREE];
@@ -117,10 +139,11 @@ int main()
 		// print(cities, n);
 		// printf("\n");
 
-		int longestRode = work(cities, n, m);
+		// int longestRode = work(cities, n, m);
+		int longestRode = workEx(cities, n, m);
 		printf("%d\n", longestRode);
 
-		delete cities;
+		delete []cities;
 	}
 	return 0;
 }
@@ -160,6 +183,23 @@ int work(city *cities, int n, int m)
 
 		if(longest > result)
 			result = longest;
+
+		// printf("\n");
+	}
+
+	return result;
+}
+
+int  workEx(city *cities, int n, int m)
+{
+	int result = 0;
+
+	for(int i = 0; i < n; ++i)
+	{
+		int max = cities[i].dfs();
+
+		if(max > result)
+			result = max;
 
 		// printf("\n");
 	}
