@@ -14,7 +14,50 @@ struct RandomListNode {
 };
 class Solution {
 public:
+    map<RandomListNode*, RandomListNode*> nodemap_;
+
+    RandomListNode *getNode(RandomListNode *node)
+    {
+        if(node == NULL) return NULL;
+
+        RandomListNode *ret = NULL;
+
+        if(nodemap_.count(node) == 0)
+        {
+            ret = new RandomListNode(node->label);
+            nodemap_[node] = ret;
+        }
+        else
+        {
+            ret = nodemap_[node];
+        }
+
+        return ret;
+    }
+    
     RandomListNode *copyRandomList(RandomListNode *head) {
+
+        RandomListNode newHead(-1), *tail = &newHead; 
+
+        RandomListNode *p = head;
+        while(p != NULL)
+        {
+            RandomListNode *node = getNode(p);
+
+            if(p->random != NULL)
+            {
+                node->random = getNode(p->random);
+            }
+
+            tail->next = p;
+            tail = tail->next;
+            p = p->next;
+        }
+
+        return newHead.next;
+    }
+
+    RandomListNode *copyRandomList_small(RandomListNode *head) {
         
         if(head == NULL) return NULL;
 
@@ -106,6 +149,7 @@ int main()
 	Solution sln;
 	sln.print_list(list);
 	RandomListNode *newList = sln.copyRandomList(list);
+    sln.print_list(newList);
 
 
 }
