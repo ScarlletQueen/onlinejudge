@@ -49,7 +49,7 @@ public:
                 node->random = getNode(p->random);
             }
 
-            tail->next = p;
+            tail->next = node;
             tail = tail->next;
             p = p->next;
         }
